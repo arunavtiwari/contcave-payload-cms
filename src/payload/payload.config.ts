@@ -8,7 +8,9 @@ import type { GenerateTitle } from '@payloadcms/plugin-seo/types'
 import { slateEditor } from '@payloadcms/richtext-slate'
 import dotenv from 'dotenv'
 import path from 'path'
-import { buildConfig } from 'payload/config'
+import { S3Client } from '@aws-sdk/client-s3';
+import { buildConfig } from 'payload/config';
+import s3Upload from 'payload-s3-upload';
 
 import Categories from './collections/Categories'
 import Comments from './collections/Comments'
@@ -44,6 +46,7 @@ export default buildConfig({
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: [BeforeDashboard],
     },
+
     webpack: config => ({
       ...config,
       resolve: {
@@ -96,5 +99,12 @@ export default buildConfig({
       uploadsCollection: 'media',
     }),
     payloadCloud(),
+    s3Upload(new S3Client({
+      region: process.env.S3_REGION,
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY,
+        secretAccessKey: process.env.S3_SECRET_KEY,
+      },
+    })),
   ],
 })
